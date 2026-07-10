@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { preloadRange } from '@/components/ImagePreloader';
-import { CalendarDays, ChevronRight, Lock, Unlock } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
 import { toast } from 'sonner';
 
 const months = [
@@ -95,8 +95,14 @@ export default function Overview() {
       {/* Header */}
       <header className="bg-blue-50/90 backdrop-blur-xl sticky top-0 z-20 pt-12 pb-6 px-6 relative">
         <div className="flex justify-between items-end">
+          <div className="flex items-end gap-2">
+            <Link to={createPageUrl('Years')} onClick={playTapSound} className="-ml-2 mb-0.5">
+              <motion.div whileTap={{ scale: 0.9 }} className="p-2 rounded-full hover:bg-white/50 transition-colors">
+                <ChevronLeft className="w-6 h-6 text-slate-500" />
+              </motion.div>
+            </Link>
           <div>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4 }}
@@ -113,7 +119,8 @@ export default function Overview() {
               2025
             </motion.h1>
           </div>
-          <motion.div 
+          </div>
+          <motion.div
             className="bg-white/50 p-3 rounded-2xl shadow-sm"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
