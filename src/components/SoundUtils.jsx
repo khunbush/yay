@@ -1,12 +1,23 @@
 // Soft, gentle tap sound using Web Audio API
 // No external assets, no loading time, respects system volume (mostly)
+
+// Browsers cap the number of live AudioContexts, so one shared context is
+// reused for every tap instead of creating a new one per click.
+let sharedCtx = null;
+
 export const playTapSound = () => {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
-    
-    // Create context on user interaction (allowed)
-    const ctx = new AudioContext();
+
+    if (!sharedCtx || sharedCtx.state === 'closed') {
+      // Create context on user interaction (allowed)
+      sharedCtx = new AudioContext();
+    }
+    const ctx = sharedCtx;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 

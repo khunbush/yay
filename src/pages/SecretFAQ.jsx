@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, HelpCircle, ChevronDown } from "lucide-react";
 
 export default function SecretFAQ() {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
+  // Security check (same as Overview/Month)
+  useEffect(() => {
+    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
+      navigate(createPageUrl('Index'), { replace: true });
+    }
+  }, [navigate]);
+
   const toggleExpand = () => {
     playTapSound();
     setIsExpanded(!isExpanded);

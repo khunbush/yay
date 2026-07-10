@@ -18,7 +18,7 @@ export default function Month() {
   // Security check
   useEffect(() => {
     if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'));
+      navigate(createPageUrl('Index'), { replace: true });
     }
   }, [navigate]);
 
@@ -30,7 +30,9 @@ export default function Month() {
   // Track viewed months
   useEffect(() => {
     if (isNaN(monthIndex)) return;
-    
+    // Don't record progress for locked visitors (the guard above is about to redirect them)
+    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') return;
+
     try {
       const viewed = JSON.parse(localStorage.getItem('bushy_meme_viewed_months') || '[]');
       if (!viewed.includes(monthIndex)) {

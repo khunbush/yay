@@ -19,7 +19,7 @@ export default function Overview() {
 
   useEffect(() => {
     if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'));
+      navigate(createPageUrl('Index'), { replace: true });
     }
     
     // Check progress
@@ -253,7 +253,7 @@ export default function Overview() {
 
             {/* Background pattern for unlocked state */}
             {viewedCount >= 12 && (
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay" />
+              <div className="absolute inset-0 bg-[url('/textures/cubes.png')] opacity-20 mix-blend-overlay" />
             )}
 
             <div className="relative z-10 flex items-center gap-2">
