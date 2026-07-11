@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster"
+import { MotionConfig } from 'framer-motion'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
@@ -70,12 +71,16 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <MusicProvider>
-          <Router>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </Router>
-        </MusicProvider>
+        {/* reducedMotion="user" turns framer-motion transforms into instant
+            cuts for people with the OS "reduce motion" setting enabled */}
+        <MotionConfig reducedMotion="user">
+          <MusicProvider>
+            <Router>
+              <NavigationTracker />
+              <AuthenticatedApp />
+            </Router>
+          </MusicProvider>
+        </MotionConfig>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

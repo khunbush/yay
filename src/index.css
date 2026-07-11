@@ -84,5 +84,47 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* App-wide clean chrome: scrollbars hidden everywhere
+     (was previously re-injected by <style> tags on individual pages) */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Sliding highlight used by BlurImage's loading placeholder */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Flowing gradient on the unlocked "meme's faq" button (Overview) */
+@keyframes bg-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

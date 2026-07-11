@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { useMusic } from '@/lib/MusicContext';
+import { isUnlocked } from '@/lib/gameState';
 import { Music, Play, ChevronRight, Headphones } from "lucide-react";
 
 const cardColors = [
@@ -18,11 +19,9 @@ export default function Soundtrack() {
   const navigate = useNavigate();
   const { songs, startPlaylist } = useMusic();
 
-  useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-  }, [navigate]);
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
 
   const pickSong = (index) => {
     playTapSound();

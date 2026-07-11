@@ -1,46 +1,38 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { preloadRange } from '@/components/ImagePreloader';
-import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock, Heart } from "lucide-react";
 import { toast } from 'sonner';
+import { isUnlocked, getViewedMonths, TOTAL_MONTHS } from '@/lib/gameState';
 
 const months = [
-  "January", "February", "March", "April", 
-  "May", "June", "July", "August", 
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
   "September", "October", "November", "December"
 ];
 
 export default function Overview() {
   const navigate = useNavigate();
-  const [viewedCount, setViewedCount] = React.useState(0);
+  const [viewedMonths] = useState(() => getViewedMonths());
+  const viewedCount = viewedMonths.length;
+  const faqReady = viewedCount >= TOTAL_MONTHS;
 
   useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-    
-    // Check progress
-    try {
-      const viewed = JSON.parse(localStorage.getItem('bushy_meme_viewed_months') || '[]');
-      // Filter strictly to valid month indices 0-11 just in case
-      const validViewed = viewed.filter(i => i >= 0 && i < 12);
-      // Ensure uniqueness although Set would handle it, just filtering is safe enough if logic was correct
-      const uniqueViewed = [...new Set(validViewed)];
-      setViewedCount(uniqueViewed.length);
-    } catch (e) {
-      console.error("Failed to load progress", e);
-    }
-
+    if (!isUnlocked()) return;
     // Preload initial months (Jan, Feb, Mar) for instant access
     const timer = setTimeout(() => {
         preloadRange(0, 3);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, []);
+
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
 
   const container = {
     hidden: { opacity: 0 },
@@ -171,6 +163,18 @@ export default function Overview() {
                   {index + 1}
                 </span>
 
+                {/* Viewed badge */}
+                {viewedMonths.includes(index) && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -30 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", damping: 12, delay: 0.4 + index * 0.05 }}
+                    className="absolute top-3 left-3 bg-white/70 rounded-full p-1.5 shadow-sm"
+                  >
+                    <Heart className="w-3 h-3 text-rose-400 fill-rose-300" />
+                  </motion.div>
+                )}
+
                 <div className="relative z-10 h-full flex flex-col justify-end">
                   <h3 className="font-bold text-slate-700 text-lg">
                     {month.substring(0, 3)}
@@ -207,25 +211,25 @@ export default function Overview() {
           </motion.p>
           
           <motion.button
-            whileHover={viewedCount >= 12 ? { 
+            whileHover={faqReady ? {
               y: -4,
               boxShadow: "0 20px 35px -5px rgba(192, 132, 252, 0.4)"
             } : {}}
-            whileTap={{ scale: viewedCount >= 12 ? 0.97 : 0.98 }}
-            animate={viewedCount >= 12 ? { 
+            whileTap={{ scale: faqReady ? 0.97 : 0.98 }}
+            animate={faqReady ? {
               scale: [1, 1.02, 1],
               boxShadow: ["0px 10px 15px -3px rgba(192, 132, 252, 0.2)", "0px 15px 25px -5px rgba(192, 132, 252, 0.4)", "0px 10px 15px -3px rgba(192, 132, 252, 0.2)"]
-            } : { 
-              opacity: 1 
+            } : {
+              opacity: 1
             }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
             onClick={() => {
               playTapSound();
-              if (viewedCount >= 12) {
+              if (faqReady) {
                 navigate(createPageUrl('SecretFAQ'));
               } else {
                 toast(`Keep going 💙 (${viewedCount}/12)`, {
@@ -241,31 +245,24 @@ export default function Overview() {
             }}
             className={`
               w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 relative overflow-hidden group cursor-pointer
-              ${viewedCount >= 12 
-                ? 'bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300' 
+              ${faqReady
+                ? 'bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300'
                 : 'bg-slate-100/50 border border-slate-200/50 shadow-inner'
               }
             `}
-            style={viewedCount >= 12 ? {
+            style={faqReady ? {
               backgroundSize: "200% 100%",
-              animation: "shimmer 3s linear infinite"
+              animation: "bg-shimmer 3s linear infinite"
             } : {}}
           >
-            <style>{`
-              @keyframes shimmer {
-                0% { background-position: 200% 0; }
-                100% { background-position: -200% 0; }
-              }
-            `}</style>
-
             {/* Background pattern for unlocked state */}
-            {viewedCount >= 12 && (
+            {faqReady && (
               <div className="absolute inset-0 bg-[url('/textures/cubes.png')] opacity-20 mix-blend-overlay" />
             )}
 
             <div className="relative z-10 flex items-center gap-2">
               <AnimatePresence mode="wait">
-                {viewedCount >= 12 ? (
+                {faqReady ? (
                   <motion.div
                     key="unlocked"
                     initial={{ scale: 0, rotate: -45 }}
@@ -294,19 +291,31 @@ export default function Overview() {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <span className={`text-xl font-bold ${viewedCount >= 12 ? 'text-white' : 'text-slate-400'}`}>
+              <span className={`text-xl font-bold ${faqReady ? 'text-white' : 'text-slate-400'}`}>
                 meme's faq
               </span>
             </div>
 
-            <motion.span 
-              key={viewedCount}
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className={`text-sm font-medium ${viewedCount >= 12 ? 'text-white/90' : 'text-slate-400/70'}`}
-            >
-              {viewedCount}/12
-            </motion.span>
+            <div className="relative z-10 flex items-center gap-2.5">
+              {!faqReady && (
+                <div className="w-24 h-1.5 rounded-full bg-slate-200/80 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-300 to-purple-300"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(viewedCount / TOTAL_MONTHS) * 100}%` }}
+                    transition={{ delay: 0.5, duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                  />
+                </div>
+              )}
+              <motion.span
+                key={viewedCount}
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className={`text-sm font-medium ${faqReady ? 'text-white/90' : 'text-slate-400/70'}`}
+              >
+                {viewedCount}/12
+              </motion.span>
+            </div>
           </motion.button>
         </motion.div>
       </div>

@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, HelpCircle, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronDown } from "lucide-react";
+import { isUnlocked, isFaqUnlocked } from '@/lib/gameState';
 
 export default function SecretFAQ() {
-  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Security check (same as Overview/Month)
-  useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-  }, [navigate]);
+  // Render-time gates: no frame of the secret content ever reaches the DOM
+  // for a locked visitor, and the FAQ can't be opened by typing the URL
+  // before all 12 months are actually viewed.
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
+  if (!isFaqUnlocked()) {
+    return <Navigate to={createPageUrl('Overview')} replace />;
+  }
 
   const toggleExpand = () => {
     playTapSound();
@@ -23,11 +26,6 @@ export default function SecretFAQ() {
   };
   return (
     <div className="min-h-screen bg-blue-50 pb-12 font-sans">
-      <style>{`
-        ::-webkit-scrollbar { display: none; }
-        body { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
       {/* Header */}
       <header className="bg-blue-50/90 backdrop-blur-xl sticky top-0 z-20 pt-12 pb-6 px-6 flex items-center gap-4">
         <Link to={createPageUrl('Overview')} onClick={playTapSound}>

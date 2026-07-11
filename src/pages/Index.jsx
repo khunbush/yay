@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Heart, Lock, Unlock, HelpCircle } from "lucide-react";
+import { Heart, HelpCircle } from "lucide-react";
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { isUnlocked, setUnlocked } from '@/lib/gameState';
+import { unlockBurst } from '@/lib/celebrate';
 
 export default function Index() {
   const [answer, setAnswer] = useState("");
@@ -13,20 +15,33 @@ export default function Index() {
   const [showSuperHint, setShowSuperHint] = useState(false);
   const [error, setError] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  // Snapshot on mount: someone already unlocked shouldn't re-answer the riddle.
+  // (State, not a live check, so the unlock animation below isn't cut short.)
+  const [wasAlreadyUnlocked] = useState(() => isUnlocked());
+  const shakeControls = useAnimation();
   const navigate = useNavigate();
+
+  if (wasAlreadyUnlocked && !isUnlocking) {
+    return <Navigate to={createPageUrl('Years')} replace />;
+  }
 
   const handleUnlock = () => {
     const cleanedAnswer = answer.trim().toLowerCase();
-    
+
     if (cleanedAnswer === "avatar") {
-      sessionStorage.setItem('bushy_meme_unlocked', 'true');
+      setUnlocked();
       setIsUnlocking(true);
+      unlockBurst();
       setTimeout(() => {
         navigate(createPageUrl('Soundtrack'));
       }, 1500);
     } else {
+      // Message stays until they type again; the shake replays on every miss
       setError(true);
-      setTimeout(() => setError(false), 500);
+      shakeControls.start({
+        x: [0, -6, 6, -4, 4, 0],
+        transition: { duration: 0.4, ease: "easeInOut" }
+      });
     }
   };
 
@@ -115,22 +130,28 @@ export default function Index() {
               </motion.p>
             </div>
 
-            <motion.div 
-              animate={error ? { x: [-4, 4, -4, 4, 0] } : {}}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+            <motion.div
+              animate={shakeControls}
               className="space-y-4"
             >
-              <motion.div 
+              <motion.div
                 className="relative"
                 whileFocus={{ scale: 1.01 }}
                 transition={{ duration: 0.2 }}
               >
-                <Input 
-                  type="text" 
-                  placeholder="Type answer..." 
+                <Input
+                  type="text"
+                  placeholder="Type answer..."
                   value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    if (error) setError(false);
+                  }}
                   onKeyDown={handleKeyDown}
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="go"
                   className="text-center h-14 text-lg rounded-2xl border-purple-100 focus:border-purple-300 focus:ring-2 focus:ring-purple-200/50 bg-white/60 backdrop-blur-sm shadow-sm transition-all placeholder:text-slate-400 text-slate-700"
                   style={{
                     boxShadow: error ? '0 0 0 2px rgba(251, 207, 232, 0.3)' : undefined
@@ -138,16 +159,19 @@ export default function Index() {
                 />
               </motion.div>
 
-              {error && (
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm font-medium"
-                  style={{ color: 'rgb(251, 207, 232)' }}
-                >
-                  Not quite—try again 💙
-                </motion.p>
-              )}
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-sm font-medium text-rose-400"
+                  >
+                    Not quite—try again 💙
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             <div className="space-y-4 pt-2">

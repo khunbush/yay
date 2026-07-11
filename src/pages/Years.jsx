@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
+import { isUnlocked } from '@/lib/gameState';
 import { Heart, BookHeart, Camera, CalendarDays, ChevronRight } from "lucide-react";
 
 const years = [
@@ -33,13 +34,9 @@ const years = [
 ];
 
 export default function Years() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-  }, [navigate]);
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
 
   const container = {
     hidden: { opacity: 0 },

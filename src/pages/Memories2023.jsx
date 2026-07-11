@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Heart } from "lucide-react";
 import { memories2023 } from '@/components/memories2023';
+import { isUnlocked } from '@/lib/gameState';
 
 const monthAccents = [
   { dot: 'bg-sky-300', card: 'bg-white/70 border-white/50' },
@@ -15,27 +16,17 @@ const monthAccents = [
 ];
 
 export default function Memories2023() {
-  const navigate = useNavigate();
-
-  // Security check
-  useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-  }, [navigate]);
-
   // Scroll to top on open
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
+
   return (
     <div className="min-h-screen bg-blue-50 pb-32 font-sans">
-      <style>{`
-        ::-webkit-scrollbar { display: none; }
-        body { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
       {/* Sticky Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}

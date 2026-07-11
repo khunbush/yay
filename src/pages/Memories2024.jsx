@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
@@ -8,31 +8,22 @@ import { ChevronLeft } from "lucide-react";
 import { cover2024, memories2024 } from '@/components/memories2024';
 import BlurImage from '@/components/BlurImage';
 import MemoryCarousel from '@/components/MemoryCarousel';
+import { isUnlocked } from '@/lib/gameState';
 
 export default function Memories2024() {
-  const navigate = useNavigate();
-
-  // Security check
-  useEffect(() => {
-    if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
-      navigate(createPageUrl('Index'), { replace: true });
-    }
-  }, [navigate]);
-
   // Scroll to top on open
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  if (!isUnlocked()) {
+    return <Navigate to={createPageUrl('Index')} replace />;
+  }
+
   const lastIndex = memories2024.length - 1;
 
   return (
     <div className="min-h-screen bg-blue-50 pb-32 font-sans">
-      <style>{`
-        ::-webkit-scrollbar { display: none; }
-        body { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
       {/* Sticky Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
