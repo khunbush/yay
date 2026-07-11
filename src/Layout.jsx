@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { WifiOff } from 'lucide-react';
+import MusicDock from '@/components/MusicDock';
 
 export default function Layout({ children }) {
   useEffect(() => {
@@ -100,6 +101,7 @@ export default function Layout({ children }) {
           }
         }}
       />
+      <MusicDock />
       <div className="w-full max-w-md bg-blue-50 min-h-screen shadow-2xl relative overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div

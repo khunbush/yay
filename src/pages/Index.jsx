@@ -22,7 +22,7 @@ export default function Index() {
       sessionStorage.setItem('bushy_meme_unlocked', 'true');
       setIsUnlocking(true);
       setTimeout(() => {
-        navigate(createPageUrl('Years'));
+        navigate(createPageUrl('Soundtrack'));
       }, 1500);
     } else {
       setError(true);
