@@ -3,7 +3,7 @@
 // PLACEHOLDER tracks below until the real songs arrive.
 
 export const songs = [
-  { title: "placeholder song 1", file: "/music/placeholder-1.wav" },
+  { title: "PP Krit x Billkin — Live Session", file: "/music/pp-krit-x-billkin-live-session.mp3" },
   { title: "placeholder song 2", file: "/music/placeholder-2.wav" },
   { title: "placeholder song 3", file: "/music/placeholder-3.wav" },
 ];
