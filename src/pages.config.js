@@ -6,6 +6,7 @@ import Memories2024 from './pages/Memories2024';
 import Month from './pages/Month';
 import Overview from './pages/Overview';
 import SecretFAQ from './pages/SecretFAQ';
+import Countries from './pages/Countries';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Month": Month,
     "Overview": Overview,
     "SecretFAQ": SecretFAQ,
+    "Countries": Countries,
 }
 
 export const pagesConfig = {

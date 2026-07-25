@@ -6,8 +6,9 @@ import { playTapSound } from '@/components/SoundUtils';
 import { Music, Play, Pause, SkipForward } from "lucide-react";
 
 // Floating mini-player pill shown on every page once a song has been chosen.
-// Hidden on the lock screen and the soundtrack picker itself.
-const HIDDEN_PATHS = ['/Index', '/Soundtrack'];
+// Hidden on the lock screen, the soundtrack picker, and the map page — that
+// one has its own bottom rail the dock would sit on top of.
+const HIDDEN_PATHS = ['/Index', '/Soundtrack', '/Countries'];
 
 export default function MusicDock() {
   const { currentSong, hasStarted, isPlaying, togglePlay, next } = useMusic();

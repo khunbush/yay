@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
-import { Heart, BookHeart, Camera, CalendarDays, ChevronRight } from "lucide-react";
+import { Heart, BookHeart, Camera, CalendarDays, ChevronRight, Globe2 } from "lucide-react";
 
 const years = [
   {
@@ -170,6 +170,31 @@ export default function Years() {
             </Link>
           </motion.div>
         ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+        className="px-6 pt-5 relative z-10 max-w-md w-full mx-auto"
+      >
+        <Link to={createPageUrl('Countries')} onClick={playTapSound}>
+          <motion.div
+            whileHover={{ y: -3, scale: 1.01 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="rounded-3xl border border-orange-200/50 bg-gradient-to-br from-orange-100/80 to-rose-100/70 shadow-sm p-5 flex items-center gap-4 group cursor-pointer"
+          >
+            <div className="bg-white/60 p-3 rounded-2xl shadow-sm shrink-0">
+              <Globe2 className="w-6 h-6 text-orange-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-slate-700 text-lg tracking-tight">Our Map</h3>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium truncate">countries we&apos;ve been together 🌍</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
+          </motion.div>
+        </Link>
       </motion.div>
 
       <motion.p
