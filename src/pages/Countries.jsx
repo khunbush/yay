@@ -39,7 +39,6 @@ export default function Countries() {
   const [current, setCurrent] = useState(null);
   const [sheet, setSheet] = useState(null);
   const [query, setQuery] = useState('');
-  const [photos, setPhotos] = useState({});
   const [toast, setToast] = useState({ msg: '', on: false });
   const [hintGone, setHintGone] = useState(false);
   const [mapFailed, setMapFailed] = useState(false);
@@ -54,8 +53,6 @@ export default function Countries() {
   const projRef = useRef(null);
   const zoomRef = useRef(null);
   const centroidsRef = useRef({});
-  const fileRef = useRef(null);
-  const photoTargetRef = useRef(null);
   const toastTimerRef = useRef(null);
 
   useEffect(() => {
@@ -257,7 +254,6 @@ export default function Countries() {
   }, [names, query, visited]);
 
   const isOn = current ? visited.has(current) : false;
-  const currentPhotos = (current && photos[current]) || [];
 
   const closeSheets = useCallback(() => {
     setSheet(null);
@@ -269,24 +265,6 @@ export default function Countries() {
     setQuery('');
     setSheet('add');
   }, []);
-
-  const pickPhoto = useCallback(() => {
-    photoTargetRef.current = current;
-    fileRef.current?.click();
-  }, [current]);
-
-  const onPhotoChosen = useCallback((e) => {
-    const file = e.target.files && e.target.files[0];
-    const target = photoTargetRef.current;
-    e.target.value = '';
-    if (!file || !target) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPhotos((prev) => ({ ...prev, [target]: [reader.result, ...(prev[target] || [])] }));
-      showToast(`Photo added to ${target}`);
-    };
-    reader.readAsDataURL(file);
-  }, [showToast]);
 
   const meta = isOn
     ? `One of our ${count} countries`
@@ -395,31 +373,6 @@ export default function Countries() {
               Close
             </button>
           </div>
-          <div className="sectitle">
-            <span>Photos</span>
-            <span>
-              {currentPhotos.length ? `${currentPhotos.length} ${currentPhotos.length === 1 ? 'photo' : 'photos'}` : ''}
-            </span>
-          </div>
-          <div className="photos">
-            <button type="button" className="addph" onClick={pickPhoto}>
-              <b>＋</b>
-              <small>add photo</small>
-            </button>
-            {currentPhotos.map((src, i) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div className={`ph${src ? '' : ' stripe'}`} key={`${current}-${i}`}>
-                {src ? <img src={src} alt={`${current} memory`} /> : null}
-              </div>
-            ))}
-          </div>
-          {currentPhotos.length ? null : (
-            <div className="empty">
-              {isOn
-                ? 'No photos yet. Add one from the trip.'
-                : 'Mark it visited, then add photos from the trip.'}
-            </div>
-          )}
         </div>
       </div>
 
@@ -463,14 +416,6 @@ export default function Countries() {
       </div>
 
       <div className={`toast${toast.on ? ' show' : ''}`}>{toast.msg}</div>
-
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileRef}
-        onChange={onPhotoChosen}
-        style={{ display: 'none' }}
-      />
     </div>
   );
 }
