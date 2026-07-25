@@ -56,7 +56,21 @@
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
+.ours .sync { display: inline-flex; align-items: center; gap: 5px; }
+.ours .sync::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--land-line);
+}
+.ours .sync.shared::before { background: var(--teal); }
+.ours .sync.offline::before { background: var(--coral); }
+.ours .sync.syncing::before { background: var(--ink-faint); }
 .ours h1 {
   font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400;

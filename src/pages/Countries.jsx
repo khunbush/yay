@@ -9,32 +9,22 @@ import { feature } from 'topojson-client';
 import { ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
-import { ALIAS, ATLAS_URL, MAP_FRAME, MICRO, SEED, STORE, TOTAL_WORLD } from '@/components/worldData';
+import { ALIAS, ATLAS_URL, MAP_FRAME, MICRO, TOTAL_WORLD } from '@/components/worldData';
+import { fetchShared, pushShared, readCache, readMeta, writeCache } from '@/lib/countriesStore';
 import './Countries.css';
 
-const loadVisited = () => {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORE));
-    // An empty array is a real answer — it means we cleared the list on purpose.
-    if (Array.isArray(stored)) return stored;
-  } catch (e) {
-    console.error('Failed to read visited countries', e);
-  }
-  return SEED;
-};
-
-const saveVisited = (set) => {
-  try {
-    localStorage.setItem(STORE, JSON.stringify([...set]));
-  } catch (e) {
-    console.error('Failed to save visited countries', e);
-  }
+const SYNC_LABEL = {
+  syncing: 'syncing',
+  shared: 'shared list',
+  offline: 'offline · saved here',
+  local: 'this device only',
 };
 
 export default function Countries() {
   const navigate = useNavigate();
 
-  const [visited, setVisited] = useState(() => new Set(loadVisited()));
+  const [visited, setVisited] = useState(() => new Set(readCache()));
+  const [sync, setSync] = useState('syncing');
   const [names, setNames] = useState([]);
   const [current, setCurrent] = useState(null);
   const [sheet, setSheet] = useState(null);
@@ -54,6 +44,10 @@ export default function Countries() {
   const zoomRef = useRef(null);
   const centroidsRef = useRef({});
   const toastTimerRef = useRef(null);
+  const aliveRef = useRef(true);
+  const unconfiguredRef = useRef(false);
+
+  useEffect(() => () => { aliveRef.current = false; }, []);
 
   useEffect(() => {
     if (sessionStorage.getItem('bushy_meme_unlocked') !== 'true') {
@@ -74,15 +68,83 @@ export default function Countries() {
     setSheet('detail');
   }, []);
 
+  // Cache first so the change survives a reload even if the network is gone,
+  // then publish to the shared copy.
+  const commit = useCallback(async (list) => {
+    writeCache(list, { updatedAt: Date.now(), dirty: true });
+    if (unconfiguredRef.current) return;
+    setSync('syncing');
+    const pushed = await pushShared(list);
+    if (!aliveRef.current) return;
+    if (pushed.status === 'ok') {
+      writeCache(list, { updatedAt: pushed.updatedAt, dirty: false });
+      setSync('shared');
+    } else if (pushed.status === 'unconfigured') {
+      unconfiguredRef.current = true;
+      setSync('local');
+    } else {
+      setSync('offline');
+    }
+  }, []);
+
   const toggleVisited = useCallback((name) => {
     const next = new Set(visited);
     const had = next.has(name);
     if (had) next.delete(name);
     else next.add(name);
     setVisited(next);
-    saveVisited(next);
+    commit([...next]);
     showToast(had ? `${name} removed` : `${name} added — ${next.size} countries`);
-  }, [visited, showToast]);
+  }, [visited, showToast, commit]);
+
+  // The shared copy wins unless this device holds a newer unpublished change.
+  const reconcile = useCallback(async () => {
+    if (unconfiguredRef.current) return;
+    const remote = await fetchShared();
+    if (!aliveRef.current) return;
+
+    if (remote.status === 'unconfigured') {
+      unconfiguredRef.current = true;
+      setSync('local');
+      return;
+    }
+    if (remote.status === 'error') {
+      setSync('offline');
+      return;
+    }
+
+    const meta = readMeta();
+    if (Array.isArray(remote.countries) && (remote.updatedAt ?? 0) >= meta.updatedAt) {
+      setVisited(new Set(remote.countries));
+      writeCache(remote.countries, { updatedAt: remote.updatedAt ?? 0, dirty: false });
+      setSync('shared');
+      return;
+    }
+
+    // Nothing shared yet, or ours is newer — publish what this device has.
+    const list = readCache();
+    const pushed = await pushShared(list);
+    if (!aliveRef.current) return;
+    if (pushed.status === 'ok') {
+      writeCache(list, { updatedAt: pushed.updatedAt, dirty: false });
+      setSync('shared');
+    } else {
+      setSync(pushed.status === 'unconfigured' ? 'local' : 'offline');
+    }
+  }, []);
+
+  useEffect(() => { reconcile(); }, [reconcile]);
+
+  // Coming back to the tab is when the other person's edits should show up.
+  useEffect(() => {
+    const onWake = () => { if (document.visibilityState === 'visible') reconcile(); };
+    window.addEventListener('focus', onWake);
+    document.addEventListener('visibilitychange', onWake);
+    return () => {
+      window.removeEventListener('focus', onWake);
+      document.removeEventListener('visibilitychange', onWake);
+    };
+  }, [reconcile]);
 
   /* ---------------- map ---------------- */
 
@@ -282,7 +344,10 @@ export default function Countries() {
           <ChevronLeft size={16} />
           Back
         </button>
-        <div className="eyebrow">Us, so far</div>
+        <div className="eyebrow">
+          Us, so far
+          <span className={`sync ${sync}`}>{SYNC_LABEL[sync]}</span>
+        </div>
         <h1>Countries we&apos;ve<br />been <em>together</em></h1>
       </header>
 
