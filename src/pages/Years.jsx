@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
-import { Heart, BookHeart, Camera, CalendarDays, ChevronRight, Globe2 } from "lucide-react";
+import { Heart, BookHeart, Camera, CalendarDays, CalendarHeart, ChevronRight, Globe2 } from "lucide-react";
 
 const years = [
   {
@@ -29,6 +29,14 @@ const years = [
     icon: CalendarDays,
     gradient: "from-purple-100/80 to-pink-100/80 border-purple-200/50",
     iconColor: "text-purple-400"
+  },
+  {
+    year: "2026",
+    page: "Overview?year=2026",
+    subtitle: "our first grown-up year",
+    icon: CalendarHeart,
+    gradient: "from-pink-100/80 to-amber-100/80 border-pink-200/50",
+    iconColor: "text-pink-400"
   }
 ];
 
@@ -203,7 +211,7 @@ export default function Years() {
         transition={{ delay: 1.2, duration: 0.6 }}
         className="text-center text-xs text-slate-400 font-medium px-6 pt-10 relative z-10"
       >
-        3 years down, forever to go 💙
+        4 years down, forever to go 💙
       </motion.p>
     </motion.div>
   );

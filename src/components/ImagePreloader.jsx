@@ -1,4 +1,4 @@
-import { memories2025 } from './memories';
+import { getMemoryYear } from './memoryYears';
 
 const preloadedUrls = new Set();
 
@@ -10,8 +10,8 @@ export const preloadImage = (url) => {
   preloadedUrls.add(url);
 };
 
-export const preloadMonthImages = (monthIndex) => {
-  const monthData = memories2025.find(m => m.monthIndex === monthIndex);
+export const preloadMonthImages = (monthIndex, year) => {
+  const monthData = getMemoryYear(year).months.find(m => m.monthIndex === monthIndex);
   if (!monthData) return;
   
   monthData.memories.forEach(memory => {
@@ -21,8 +21,8 @@ export const preloadMonthImages = (monthIndex) => {
   });
 };
 
-export const preloadRange = (startIndex, count = 1) => {
+export const preloadRange = (startIndex, count = 1, year) => {
   for (let i = 0; i < count; i++) {
-    preloadMonthImages(startIndex + i);
+    preloadMonthImages(startIndex + i, year);
   }
 };

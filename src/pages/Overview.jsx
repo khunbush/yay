@@ -1,20 +1,28 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import { preloadRange } from '@/components/ImagePreloader';
 import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
 import { toast } from 'sonner';
+import { MONTH_NAMES as months, getMemoryYear, isMonthLocked, yearQuery } from '@/components/memoryYears';
 
-const months = [
-  "January", "February", "March", "April", 
-  "May", "June", "July", "August", 
-  "September", "October", "November", "December"
-];
+const pillToast = (message) => toast(message, {
+  position: 'bottom-center',
+  style: {
+    background: '#1e293b',
+    color: '#fff',
+    borderRadius: '99px',
+    textAlign: 'center'
+  }
+});
 
 export default function Overview() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const yearData = getMemoryYear(searchParams.get('year'));
+  const { year } = yearData;
   const [viewedCount, setViewedCount] = React.useState(0);
 
   useEffect(() => {
@@ -22,25 +30,27 @@ export default function Overview() {
       navigate(createPageUrl('Index'), { replace: true });
     }
     
-    // Check progress
-    try {
-      const viewed = JSON.parse(localStorage.getItem('bushy_meme_viewed_months') || '[]');
-      // Filter strictly to valid month indices 0-11 just in case
-      const validViewed = viewed.filter(i => i >= 0 && i < 12);
-      // Ensure uniqueness although Set would handle it, just filtering is safe enough if logic was correct
-      const uniqueViewed = [...new Set(validViewed)];
-      setViewedCount(uniqueViewed.length);
-    } catch (e) {
-      console.error("Failed to load progress", e);
+    // Check progress (only 2025 has the meme's faq secret)
+    if (yearData.secret) {
+      try {
+        const viewed = JSON.parse(localStorage.getItem('bushy_meme_viewed_months') || '[]');
+        // Filter strictly to valid month indices 0-11 just in case
+        const validViewed = viewed.filter(i => i >= 0 && i < 12);
+        // Ensure uniqueness although Set would handle it, just filtering is safe enough if logic was correct
+        const uniqueViewed = [...new Set(validViewed)];
+        setViewedCount(uniqueViewed.length);
+      } catch (e) {
+        console.error("Failed to load progress", e);
+      }
     }
 
     // Preload initial months (Jan, Feb, Mar) for instant access
     const timer = setTimeout(() => {
-        preloadRange(0, 3);
+        preloadRange(0, 3, year);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, year, yearData.secret]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -116,7 +126,7 @@ export default function Overview() {
               transition={{ delay: 0.15, duration: 0.5, ease: "easeOut" }}
               className="text-4xl font-bold text-slate-700 tracking-tight"
             >
-              2025
+              {year}
             </motion.h1>
           </div>
           </div>
@@ -155,41 +165,63 @@ export default function Overview() {
               }
             }}
           >
-            <Link to={`${createPageUrl('Month')}?index=${index}`} onClick={playTapSound}>
-              <motion.div 
-                whileHover={{ 
-                  y: -6, 
-                  scale: 1.02,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  filter: "saturate(1.15) brightness(1.05)"
-                }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className={`aspect-[3/4] rounded-3xl shadow-sm border p-4 flex flex-col justify-between group cursor-pointer relative overflow-hidden ${cardColors[index % 4]}`}
+            {isMonthLocked(yearData, index) ? (
+              <motion.div
+                whileTap={{ scale: 0.97, rotate: [0, -2, 2, 0] }}
+                onClick={() => { playTapSound(); pillToast(`${month} coming soon 🔒`); }}
+                className="aspect-[3/4] rounded-3xl border border-slate-200/50 bg-slate-100/50 shadow-inner p-4 flex flex-col justify-between cursor-pointer relative overflow-hidden"
               >
-                <span className="text-4xl font-bold text-white/40 absolute top-2 right-2 font-serif select-none transition-colors">
+                <span className="text-4xl font-bold text-white/60 absolute top-2 right-2 font-serif select-none">
                   {index + 1}
                 </span>
 
                 <div className="relative z-10 h-full flex flex-col justify-end">
-                  <h3 className="font-bold text-slate-700 text-lg">
+                  <h3 className="font-bold text-slate-400 text-lg">
                     {month.substring(0, 3)}
                   </h3>
-                  <motion.p 
-                    className="text-[10px] text-slate-500 mt-1 flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity"
-                    whileHover={{ x: 4 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    Open <ChevronRight className="w-2 h-2" />
-                  </motion.p>
+                  <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 opacity-70">
+                    <Lock className="w-2.5 h-2.5" /> Soon
+                  </p>
                 </div>
               </motion.div>
-            </Link>
+            ) : (
+              <Link to={`${createPageUrl('Month')}?${[yearQuery(year), `index=${index}`].filter(Boolean).join('&')}`} onClick={playTapSound}>
+                <motion.div 
+                  whileHover={{ 
+                    y: -6, 
+                    scale: 1.02,
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                    filter: "saturate(1.15) brightness(1.05)"
+                  }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className={`aspect-[3/4] rounded-3xl shadow-sm border p-4 flex flex-col justify-between group cursor-pointer relative overflow-hidden ${cardColors[index % 4]}`}
+                >
+                  <span className="text-4xl font-bold text-white/40 absolute top-2 right-2 font-serif select-none transition-colors">
+                    {index + 1}
+                  </span>
+
+                  <div className="relative z-10 h-full flex flex-col justify-end">
+                    <h3 className="font-bold text-slate-700 text-lg">
+                      {month.substring(0, 3)}
+                    </h3>
+                    <motion.p 
+                      className="text-[10px] text-slate-500 mt-1 flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity"
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      Open <ChevronRight className="w-2 h-2" />
+                    </motion.p>
+                  </div>
+                </motion.div>
+              </Link>
+            )}
           </motion.div>
         ))}
       </motion.div>
 
       {/* Secret Section */}
+      {yearData.secret && (
       <div className="px-6 pb-12 pt-4 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -228,15 +260,7 @@ export default function Overview() {
               if (viewedCount >= 12) {
                 navigate(createPageUrl('SecretFAQ'));
               } else {
-                toast(`Keep going 💙 (${viewedCount}/12)`, {
-                  position: 'bottom-center',
-                  style: {
-                    background: '#1e293b',
-                    color: '#fff',
-                    borderRadius: '99px',
-                    textAlign: 'center'
-                  }
-                });
+                pillToast(`Keep going 💙 (${viewedCount}/12)`);
               }
             }}
             className={`
@@ -310,6 +334,7 @@ export default function Overview() {
           </motion.button>
         </motion.div>
       </div>
+      )}
     </motion.div>
   );
 }

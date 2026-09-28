@@ -8,7 +8,7 @@ export default function Layout({ children }) {
   useEffect(() => {
     // PWA Manifest Injection
     const manifest = {
-      name: "Bushy & Meme 2025",
+      name: "Bushy & Meme 2026",
       short_name: "Bushy&Meme",
       start_url: "/",
       display: "standalone",

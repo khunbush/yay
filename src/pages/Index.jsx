@@ -103,7 +103,7 @@ export default function Index() {
                 animate={{ opacity: 1, y: 0, letterSpacing: "-0.025em" }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
               >
-                Bushy & Meme 2025
+                Bushy & Meme 2026
               </motion.h1>
               <motion.p 
                 className="text-slate-500 font-medium"
