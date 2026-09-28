@@ -10,7 +10,6 @@ const years = [
   {
     year: "2023",
     page: "Memories2023",
-    subtitle: "where it all started",
     icon: BookHeart,
     gradient: "from-emerald-100/80 to-sky-100/80 border-emerald-200/50",
     iconColor: "text-emerald-400"
@@ -18,7 +17,6 @@ const years = [
   {
     year: "2024",
     page: "Memories2024",
-    subtitle: "memories with memee🩵",
     icon: Camera,
     gradient: "from-sky-100/80 to-purple-100/80 border-sky-200/50",
     iconColor: "text-sky-400"
@@ -26,7 +24,6 @@ const years = [
   {
     year: "2025",
     page: "Overview",
-    subtitle: "our monthly memory book",
     icon: CalendarDays,
     gradient: "from-purple-100/80 to-pink-100/80 border-purple-200/50",
     iconColor: "text-purple-400"
@@ -34,7 +31,6 @@ const years = [
   {
     year: "2026",
     page: "Overview?year=2026",
-    subtitle: "our first grown-up year",
     icon: CalendarHeart,
     gradient: "from-pink-100/80 to-amber-100/80 border-pink-200/50",
     iconColor: "text-pink-400"
@@ -113,8 +109,7 @@ export default function Years() {
           transition={{ delay: 0.5, duration: 0.5 }}
           className="mt-9 px-1"
         >
-          <h1 className="text-xl font-bold text-slate-700 tracking-tight">Our Years Together</h1>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">pick a year to relive 💙</p>
+          <h1 className="text-xl font-bold text-slate-700 tracking-tight">Memories</h1>
         </motion.div>
       </header>
 
@@ -125,7 +120,7 @@ export default function Years() {
         animate="show"
         className="flex flex-col gap-5 px-6 pt-4 relative z-10 max-w-md w-full mx-auto"
       >
-        {years.map(({ year, page, subtitle, icon: Icon, gradient, iconColor }, index) => (
+        {years.map(({ year, page, icon: Icon, gradient, iconColor }, index) => (
           <motion.div
             key={year}
             variants={item}
@@ -160,7 +155,6 @@ export default function Years() {
 
                 <div className="relative z-10 flex-1 min-w-0">
                   <h3 className="font-bold text-slate-700 text-2xl tracking-tight">{year}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5 font-medium truncate">{subtitle}</p>
                 </div>
 
                 <ChevronRight className="w-5 h-5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
@@ -188,21 +182,12 @@ export default function Years() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-slate-700 text-lg tracking-tight">Our Map</h3>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium truncate">countries we&apos;ve been together 🌍</p>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
           </motion.div>
         </Link>
       </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.6 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
-        className="text-center text-xs text-slate-400 font-medium px-6 pt-10 relative z-10"
-      >
-        4 years down, forever to go 💙
-      </motion.p>
     </motion.div>
   );
 }

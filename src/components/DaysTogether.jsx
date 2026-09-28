@@ -112,9 +112,6 @@ export default function DaysTogether() {
         <p className="mt-2 text-sm font-bold text-slate-600 uppercase tracking-[0.25em]">
           days together
         </p>
-        <p className="mt-1 text-xs text-slate-400 font-medium">
-          since 20 October 2022
-        </p>
 
         <div className="mt-5 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent" />
 
