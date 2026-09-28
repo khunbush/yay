@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
-import { Heart, BookHeart, Camera, CalendarDays, CalendarHeart, ChevronRight, Globe2 } from "lucide-react";
+import DaysTogether from '@/components/DaysTogether';
+import { BookHeart, Camera, CalendarDays, CalendarHeart, ChevronRight, Globe2 } from "lucide-react";
 
 const years = [
   {
@@ -75,7 +76,7 @@ export default function Years() {
 
   return (
     <motion.div
-      className="min-h-screen bg-blue-50 pb-12 font-sans flex flex-col"
+      className="min-h-screen bg-blue-50 pb-28 font-sans flex flex-col"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
@@ -94,38 +95,27 @@ export default function Years() {
       />
 
       {/* Header */}
-      <header className="pt-16 pb-8 px-6 text-center relative z-10">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: "spring", damping: 12 }}
-        >
-          <Heart className="w-10 h-10 mx-auto text-rose-300 fill-rose-100 mb-3" />
-        </motion.div>
+      <header className="pt-12 pb-2 px-6 relative z-10 max-w-md w-full mx-auto">
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1"
+          className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4"
         >
           Bushy & Meme
         </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5, ease: "easeOut" }}
-          className="text-3xl font-bold text-slate-700 tracking-tight"
-        >
-          Our Years Together
-        </motion.h1>
-        <motion.p
+
+        <DaysTogether />
+
+        <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.7 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="text-sm text-slate-500 mt-2 font-medium"
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-9 px-1"
         >
-          pick a year to relive 💙
-        </motion.p>
+          <h1 className="text-xl font-bold text-slate-700 tracking-tight">Our Years Together</h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">pick a year to relive 💙</p>
+        </motion.div>
       </header>
 
       {/* Year Cards */}
@@ -133,7 +123,7 @@ export default function Years() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex-1 flex flex-col gap-5 px-6 pt-2 relative z-10 max-w-md w-full mx-auto"
+        className="flex flex-col gap-5 px-6 pt-4 relative z-10 max-w-md w-full mx-auto"
       >
         {years.map(({ year, page, subtitle, icon: Icon, gradient, iconColor }, index) => (
           <motion.div
