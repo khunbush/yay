@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { WifiOff } from 'lucide-react';
@@ -13,7 +13,7 @@ export default function Layout({ children }) {
       start_url: "/",
       display: "standalone",
       background_color: "#ffffff",
-      theme_color: "#eff6ff",
+      theme_color: "#f6f0e7",
       icons: [
         {
           src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzNiODJmNiI+PHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgMyAzIDEuNzQgMCAzLjQxLjgxIDQuNSAyLjA5QzEzLjA5IDMuODEgMTQuNzYgMyAxNi41IDMgMTkuNTggMyAyMiA1LjQyIDIyIDguNWMwIDMuNzgtMy40IDYuODYtOC41NSAxMS41NEwxMiAyMS4zNXoiLz48L3N2Zz4=",
@@ -45,7 +45,7 @@ export default function Layout({ children }) {
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       { name: 'apple-mobile-web-app-title', content: 'Bushy & Meme' },
-      { name: 'theme-color', content: '#f0f9ff' }
+      { name: 'theme-color', content: '#f6f0e7' }
     ];
 
     metaTags.forEach(tag => {
@@ -90,7 +90,7 @@ export default function Layout({ children }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-blue-50 flex justify-center overflow-hidden font-sans text-slate-600">
+    <div className="min-h-screen bg-[#f6f0e7] flex justify-center overflow-hidden font-sans text-slate-600">
       <Toaster position="top-center" 
         toastOptions={{
           style: {
@@ -102,7 +102,7 @@ export default function Layout({ children }) {
         }}
       />
       <MusicDock />
-      <div className="w-full max-w-md bg-blue-50 min-h-screen shadow-2xl relative overflow-x-hidden">
+      <div className="w-full max-w-md bg-[#f6f0e7] min-h-screen shadow-2xl relative overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={window.location.pathname}

@@ -1,28 +1,18 @@
 import { toast } from 'sonner';
 import { MONTH_NAMES, isMonthLocked } from '@/components/memoryYears';
 
-// 2026 "Envelopes" palette
-export const PAPER_BG = '#f6f0e7';
-export const INK = '#3b3450';
-export const MUTED = '#8a7f96';
-export const MUTED_2 = '#9b91a6';
-export const MUTED_3 = '#6b6178';
-export const EYEBROW = '#8a8299';
-export const LETTER = '#fffdf8';
+import {
+  PAPERS, FLAPS, SEALS,
+} from '@/components/paperTheme';
+
+export {
+  PAPER_BG, INK, MUTED, MUTED_2, MUTED_3, EYEBROW, LETTER, EASE, SERIF, SANS, MONO,
+} from '@/components/paperTheme';
+
 export const LOCKED_PAPER = '#efe9e0';
 export const LOCKED_FLAP = '#e8e1d6';
 export const LOCKED_BORDER = '#d3cabd';
 export const TOAST_BG = '#2c2638';
-
-export const EASE = 'cubic-bezier(.2,.8,.2,1)';
-
-export const SERIF = "'Instrument Serif', Georgia, serif";
-export const SANS = "'DM Sans', system-ui, sans-serif";
-export const MONO = "'DM Mono', ui-monospace, monospace";
-
-const PAPERS = ['#fcf3ea', '#f7f1fc', '#eff4fb', '#f0f6f0'];
-const FLAPS = ['#f4e2d4', '#ebdff6', '#dee8f5', '#e0eee2'];
-const SEALS = ['oklch(0.7 0.13 10)', 'oklch(0.7 0.13 300)', 'oklch(0.7 0.13 235)', 'oklch(0.7 0.13 150)'];
 
 // Envelope colours cycle by month
 export const envelopeColors = (monthIndex) => ({

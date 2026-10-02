@@ -3,15 +3,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { useMusic } from '@/lib/MusicContext';
 import { playTapSound } from '@/components/SoundUtils';
-import { Music, Play, Pause, SkipForward } from "lucide-react";
+import { Play, Pause, SkipForward } from "lucide-react";
+import { INK, SEALS, SANS, RECORD_BG, EASE_ARRAY } from '@/components/paperTheme';
 
 // Floating mini-player pill shown on every page once a song has been chosen.
 // Hidden on the lock screen, the soundtrack picker, and the map page — that
 // one has its own bottom rail the dock would sit on top of.
 const HIDDEN_PATHS = ['/Index', '/Soundtrack', '/Countries'];
 
+// 44px tap area around a 36px circle
+const dockButton = {
+  width: 44, height: 44, flex: '0 0 44px', margin: -4, padding: 0, border: 'none', background: 'none',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+  WebkitTapHighlightColor: 'transparent',
+};
+const dockCircle = {
+  width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+};
+
 export default function MusicDock() {
-  const { currentSong, hasStarted, isPlaying, togglePlay, next } = useMusic();
+  const { currentSong, currentIndex, hasStarted, isPlaying, togglePlay, next } = useMusic();
   const location = useLocation();
 
   const hidden = !hasStarted || !currentSong || HIDDEN_PATHS.includes(location.pathname);
@@ -20,43 +31,65 @@ export default function MusicDock() {
     <AnimatePresence>
       {!hidden && (
         <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+          initial={{ opacity: 0, y: 14, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 30, scale: 0.9 }}
-          transition={{ type: "spring", damping: 18, stiffness: 250 }}
-          className="fixed bottom-4 inset-x-0 z-40 flex justify-center pointer-events-none px-6"
+          exit={{ opacity: 0, y: 14, scale: 0.97 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: EASE_ARRAY }}
+          className="fixed inset-x-0 z-40 flex justify-center pointer-events-none px-4"
+          style={{ bottom: 'calc(34px + env(safe-area-inset-bottom, 0px))' }}
           data-testid="music-dock"
         >
-          <div className="pointer-events-auto flex items-center gap-2 bg-white/85 backdrop-blur-xl border border-white/60 shadow-lg shadow-purple-100/50 rounded-full pl-4 pr-2 py-2 max-w-full">
-            <motion.div
-              animate={isPlaying ? { rotate: [0, 8, -8, 0] } : {}}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="shrink-0"
-            >
-              <Music className="w-4 h-4 text-purple-400" />
-            </motion.div>
+          <div
+            className="pointer-events-auto"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '8px 8px 8px 10px', borderRadius: 99,
+              background: 'rgba(255,253,248,.92)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+              boxShadow: '0 16px 30px -14px rgba(70,50,90,.5), 0 0 0 1px rgba(80,60,100,.06)',
+              maxWidth: '100%', color: INK, fontFamily: SANS,
+            }}
+          >
+            {/* Mini record */}
+            <div style={{
+              width: 32, height: 32, flex: '0 0 32px', borderRadius: '50%', background: RECORD_BG,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              animation: 'l26spin 2.4s linear infinite',
+              animationPlayState: isPlaying ? 'running' : 'paused',
+            }}>
+              <div style={{ width: 11, height: 11, borderRadius: '50%', background: SEALS[(currentIndex ?? 0) % 3] }} />
+            </div>
 
-            <span className="text-xs font-medium text-slate-600 truncate max-w-[40vw]">
+            <span style={{
+              fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden',
+              textOverflow: 'ellipsis', maxWidth: 170, minWidth: 0,
+            }}>
               {currentSong.title}
             </span>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={() => { playTapSound(); togglePlay(); }}
-              className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 flex items-center justify-center text-white shadow-sm active:scale-90 transition-transform"
+              style={dockButton}
               aria-label={isPlaying ? 'Pause music' : 'Play music'}
               data-testid="music-toggle"
             >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </button>
+              <span style={{ ...dockCircle, background: INK, color: '#fff' }}>
+                {isPlaying
+                  ? <Pause size={15} fill="currentColor" strokeWidth={0} />
+                  : <Play size={15} fill="currentColor" strokeWidth={0} style={{ marginLeft: 2 }} />}
+              </span>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={() => { playTapSound(); next(); }}
-              className="shrink-0 w-9 h-9 rounded-full bg-white/70 border border-slate-200/60 flex items-center justify-center text-slate-500 active:scale-90 transition-transform hover:bg-white"
+              style={dockButton}
               aria-label="Next song"
               data-testid="music-next"
             >
-              <SkipForward className="w-4 h-4" />
-            </button>
+              <span style={{ ...dockCircle, border: '1px solid #e4dccf', color: INK }}>
+                <SkipForward size={15} fill="currentColor" strokeWidth={2} />
+              </span>
+            </motion.button>
           </div>
         </motion.div>
       )}

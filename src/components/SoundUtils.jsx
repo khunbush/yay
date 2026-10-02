@@ -49,3 +49,29 @@ export const playTapSound = () => {
     console.error("Audio play failed", e);
   }
 };
+
+// Low wax-seal "thud" for the unlock stamp
+export const playThudSound = () => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    if (!sharedCtx || sharedCtx.state === 'closed') sharedCtx = new AudioContext();
+    const ctx = sharedCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    const t = ctx.currentTime;
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(50, t + 0.18);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.25, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.start(t);
+    osc.stop(t + 0.18);
+  } catch (e) {
+    console.error("Audio play failed", e);
+  }
+};

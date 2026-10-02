@@ -4,38 +4,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { playTapSound } from '@/components/SoundUtils';
 import DaysTogether from '@/components/DaysTogether';
-import { BookHeart, Camera, CalendarDays, CalendarHeart, ChevronRight, Globe2 } from "lucide-react";
+import {
+  PAPER_BG, LETTER, INK, MUTED, EYEBROW, MICRO, PAPERS, FLAPS, SEALS,
+  SERIF, SANS, MONO, enter, perforated,
+} from '@/components/paperTheme';
+
+// Envelope colours run 2023 → 2026 as sage, sky, lilac, rose
+const ENVELOPE_ORDER = [3, 2, 1, 0];
 
 const years = [
-  {
-    year: "2023",
-    page: "Memories2023",
-    icon: BookHeart,
-    gradient: "from-emerald-100/80 to-sky-100/80 border-emerald-200/50",
-    iconColor: "text-emerald-400"
-  },
-  {
-    year: "2024",
-    page: "Memories2024",
-    icon: Camera,
-    gradient: "from-sky-100/80 to-purple-100/80 border-sky-200/50",
-    iconColor: "text-sky-400"
-  },
-  {
-    year: "2025",
-    page: "Overview",
-    icon: CalendarDays,
-    gradient: "from-purple-100/80 to-pink-100/80 border-purple-200/50",
-    iconColor: "text-purple-400"
-  },
-  {
-    year: "2026",
-    page: "Overview?year=2026",
-    icon: CalendarHeart,
-    gradient: "from-pink-100/80 to-amber-100/80 border-pink-200/50",
-    iconColor: "text-pink-400"
-  }
+  { year: "2023", page: "Memories2023" },
+  { year: "2024", page: "Memories2024" },
+  { year: "2025", page: "Overview" },
+  { year: "2026", page: "Overview?year=2026" },
 ];
+
+const ROW_SHADOW = '0 14px 26px -20px rgba(70,50,90,.55), 0 0 0 1px rgba(80,60,100,.05)';
 
 export default function Years() {
   const navigate = useNavigate();
@@ -46,148 +30,102 @@ export default function Years() {
     }
   }, [navigate]);
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 24, scale: 0.97 },
-    show: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.2, 0.8, 0.2, 1]
-      }
-    }
-  };
-
   return (
     <motion.div
-      className="min-h-screen bg-blue-50 pb-28 font-sans flex flex-col"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
+      {...enter(0, 0.5)}
+      style={{
+        minHeight: '100vh', background: PAPER_BG, color: INK, fontFamily: SANS,
+        padding: '70px 22px 120px', boxSizing: 'border-box', overflowX: 'hidden',
+      }}
     >
-      <motion.div
-        className="fixed inset-0 pointer-events-none z-0"
-        animate={{
-          background: [
-            "linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(243, 232, 255) 100%)",
-            "linear-gradient(135deg, rgb(243, 232, 255) 0%, rgb(254, 242, 242) 100%)",
-            "linear-gradient(135deg, rgb(254, 242, 242) 0%, rgb(239, 246, 255) 100%)",
-            "linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(243, 232, 255) 100%)"
-          ]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* Header */}
-      <header className="pt-12 pb-2 px-6 relative z-10 max-w-md w-full mx-auto">
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4"
-        >
+      <div style={{ maxWidth: 440, margin: '0 auto' }}>
+        <p style={{
+          textAlign: 'center', fontSize: 12, fontWeight: 600, letterSpacing: '.22em',
+          textTransform: 'uppercase', color: EYEBROW,
+        }}>
           Bushy & Meme
-        </motion.p>
+        </p>
 
         <DaysTogether />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-9 px-1"
-        >
-          <h1 className="text-xl font-bold text-slate-700 tracking-tight">Memories</h1>
-        </motion.div>
-      </header>
+        <h1 style={{ fontFamily: SERIF, fontWeight: 400, fontSize: 32, margin: '34px 4px 14px' }}>Memories</h1>
 
-      {/* Year Cards */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col gap-5 px-6 pt-4 relative z-10 max-w-md w-full mx-auto"
-      >
-        {years.map(({ year, page, icon: Icon, gradient, iconColor }, index) => (
-          <motion.div
-            key={year}
-            variants={item}
-            animate={{ y: [0, -3, 0] }}
-            transition={{
-              y: {
-                duration: 6 + index * 0.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: index * 0.4
-              }
-            }}
-          >
-            <Link to={createPageUrl(page)} onClick={playTapSound}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {years.map(({ year, page }, index) => {
+            const c = ENVELOPE_ORDER[index];
+            const big = year === "2026";
+            const seal = big ? 50 : 34;
+            return (
+              <motion.div key={year} {...enter(0.15 + index * 0.08)}>
+                <Link to={createPageUrl(page)} onClick={playTapSound} style={{ display: 'block', WebkitTapHighlightColor: 'transparent' }}>
+                  <motion.div
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                      position: 'relative', height: big ? 150 : 92, borderRadius: 16, background: PAPERS[c],
+                      boxShadow: ROW_SHADOW, overflow: 'hidden', color: INK,
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', left: 0, right: 0, top: 0, height: '58%', background: FLAPS[c],
+                      clipPath: 'polygon(0 0,100% 0,50% 100%)',
+                    }} />
+                    <div style={{
+                      position: 'absolute', top: '58%', left: '50%', transform: 'translate(-50%,-50%)',
+                      width: seal, height: seal, borderRadius: '50%', background: SEALS[c],
+                      boxShadow: 'inset 0 0 0 4px rgba(255,255,255,.22), 0 4px 8px rgba(80,40,60,.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontFamily: SERIF, fontSize: big ? 22 : 15, color: '#fff',
+                    }}>
+                      {year.slice(2)}
+                    </div>
+                    <h3 style={{
+                      position: 'absolute', left: 20, bottom: 12, fontFamily: SERIF, fontWeight: 400,
+                      fontSize: big ? 42 : 28, lineHeight: 1,
+                    }}>
+                      {year}
+                    </h3>
+                    <span style={{ position: 'absolute', right: 18, bottom: 16, fontSize: 12, fontWeight: 600, color: MUTED }}>
+                      {big ? 'new letters ›' : '›'}
+                    </span>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            );
+          })}
+
+          {/* Our Map postcard */}
+          <motion.div {...enter(0.15 + years.length * 0.08)} style={{ marginTop: 6 }}>
+            <Link to={createPageUrl('Countries')} onClick={playTapSound} style={{ display: 'block', WebkitTapHighlightColor: 'transparent' }}>
               <motion.div
-                whileHover={{
-                  y: -5,
-                  scale: 1.02,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  display: 'flex', gap: 14, alignItems: 'center', padding: 12, borderRadius: 16,
+                  background: LETTER, boxShadow: ROW_SHADOW, rotate: 0.8, color: INK,
                 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className={`rounded-3xl shadow-sm border p-6 flex items-center gap-5 group cursor-pointer relative overflow-hidden bg-gradient-to-br ${gradient}`}
               >
-                <span className="text-7xl font-bold text-white/40 absolute -top-2 right-3 font-serif select-none pointer-events-none">
-                  {year.slice(2)}
-                </span>
-
-                <div className="bg-white/60 p-3.5 rounded-2xl shadow-sm shrink-0">
-                  <Icon className={`w-7 h-7 ${iconColor}`} />
+                <img
+                  src="/textures/map-postcard.png"
+                  alt=""
+                  width={96}
+                  height={72}
+                  draggable={false}
+                  style={{ width: 96, height: 72, flex: '0 0 96px', borderRadius: 8, objectFit: 'cover', background: '#e4ecf2' }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.14em', color: MICRO }}>POSTCARD</div>
+                  <h3 style={{ fontFamily: SERIF, fontWeight: 400, fontSize: 26, lineHeight: 1.1 }}>Our Map</h3>
                 </div>
-
-                <div className="relative z-10 flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-700 text-2xl tracking-tight">{year}</h3>
+                <div style={{
+                  width: 40, height: 48, flex: '0 0 40px', boxSizing: 'border-box', ...perforated(6, 2),
+                  filter: 'drop-shadow(0 2px 3px rgba(70,50,90,.2))', transform: 'rotate(6deg)',
+                }}>
+                  <div style={{ width: '100%', height: '100%', background: 'oklch(0.82 0.08 60)' }} />
                 </div>
-
-                <ChevronRight className="w-5 h-5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
               </motion.div>
             </Link>
           </motion.div>
-        ))}
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-        className="px-6 pt-5 relative z-10 max-w-md w-full mx-auto"
-      >
-        <Link to={createPageUrl('Countries')} onClick={playTapSound}>
-          <motion.div
-            whileHover={{ y: -3, scale: 1.01 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="rounded-3xl border border-orange-200/50 bg-gradient-to-br from-orange-100/80 to-rose-100/70 shadow-sm p-5 flex items-center gap-4 group cursor-pointer"
-          >
-            <div className="bg-white/60 p-3 rounded-2xl shadow-sm shrink-0">
-              <Globe2 className="w-6 h-6 text-orange-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-slate-700 text-lg tracking-tight">Our Map</h3>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
-          </motion.div>
-        </Link>
-      </motion.div>
-
+        </div>
+      </div>
     </motion.div>
   );
 }

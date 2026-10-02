@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Heart, Lock, Unlock, HelpCircle } from "lucide-react";
+import { Heart } from "lucide-react";
 import { createPageUrl } from '@/utils';
-import { playTapSound } from '@/components/SoundUtils';
+import { playTapSound, playThudSound } from '@/components/SoundUtils';
 import { useNavigate } from 'react-router-dom';
+import {
+  PAPER_BG, LETTER, INK, MUTED_2, MUTED_3, MICRO, DASHED, WAX_ROSE, HINT_BLUE,
+  CARD_SHADOW, EASE_ARRAY, SERIF, SANS, MONO, enter,
+} from '@/components/paperTheme';
 
 export default function Index() {
   const [answer, setAnswer] = useState("");
@@ -13,20 +15,29 @@ export default function Index() {
   const [showSuperHint, setShowSuperHint] = useState(false);
   const [error, setError] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const navigate = useNavigate();
+  const timers = useRef([]);
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const handleUnlock = () => {
+    if (isUnlocking) return;
     const cleanedAnswer = answer.trim().toLowerCase();
-    
+
     if (cleanedAnswer === "avatar") {
       sessionStorage.setItem('bushy_meme_unlocked', 'true');
       setIsUnlocking(true);
-      setTimeout(() => {
-        navigate(createPageUrl('Soundtrack'));
-      }, 1500);
+      timers.current.push(
+        setTimeout(playThudSound, 260),
+        setTimeout(() => setLeaving(true), 1100),
+        setTimeout(() => {
+          navigate(createPageUrl('Soundtrack'));
+        }, 1500)
+      );
     } else {
       setError(true);
-      setTimeout(() => setError(false), 500);
+      timers.current.push(setTimeout(() => setError(false), 500));
     }
   };
 
@@ -37,301 +48,201 @@ export default function Index() {
   };
 
   return (
-    <motion.div 
-      className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-center relative overflow-hidden font-sans"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
-      
-      {/* Background decoration with breathing animation */}
-      <motion.div 
-        className="absolute top-[-10%] left-[-10%] w-[50%] h-[30%] rounded-full blur-[100px] opacity-40 pointer-events-none"
-        animate={{ 
-          background: [
-            "radial-gradient(circle, rgb(219, 234, 254) 0%, rgb(251, 207, 232) 100%)",
-            "radial-gradient(circle, rgb(237, 233, 254) 0%, rgb(219, 234, 254) 100%)",
-            "radial-gradient(circle, rgb(254, 242, 242) 0%, rgb(219, 234, 254) 100%)",
-            "radial-gradient(circle, rgb(219, 234, 254) 0%, rgb(251, 207, 232) 100%)"
-          ]
+    <div style={{ minHeight: '100vh', background: PAPER_BG, color: INK, fontFamily: SANS, overflow: 'hidden' }}>
+      <motion.div
+        animate={leaving ? { opacity: 0, scale: 1.08, y: -20 } : { opacity: 1, scale: 1, y: 0 }}
+        transition={{ opacity: { duration: 0.4 }, default: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
+        style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '96px 30px 40px', boxSizing: 'border-box', maxWidth: 440, margin: '0 auto',
         }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div 
-        className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[30%] rounded-full blur-[100px] opacity-40 pointer-events-none"
-        animate={{ 
-          background: [
-            "radial-gradient(circle, rgb(251, 207, 232) 0%, rgb(237, 233, 254) 100%)",
-            "radial-gradient(circle, rgb(219, 234, 254) 0%, rgb(254, 242, 242) 100%)",
-            "radial-gradient(circle, rgb(237, 233, 254) 0%, rgb(219, 234, 254) 100%)",
-            "radial-gradient(circle, rgb(251, 207, 232) 0%, rgb(237, 233, 254) 100%)"
-          ]
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 7.5 }}
-      />
+      >
+        {/* Wax seal */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            width: 74, height: 74, borderRadius: '50%', background: WAX_ROSE,
+            boxShadow: 'inset 0 0 0 6px rgba(255,255,255,.2), 0 10px 20px -8px rgba(150,50,70,.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            animation: 'l26pulse 2.5s ease-in-out infinite',
+          }}
+        >
+          <Heart size={30} color="#fff" fill="#fff" strokeWidth={0} />
+        </motion.div>
 
-      <AnimatePresence>
-        {!isUnlocking ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.05, y: -20, filter: "blur(10px)" }}
-            transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
-            className="w-full max-w-xs space-y-8 z-10"
+        <motion.h1
+          {...enter(0.1, 0.6)}
+          style={{
+            fontFamily: SERIF, fontWeight: 400, fontSize: 40, lineHeight: 1.05,
+            textAlign: 'center', marginTop: 22, letterSpacing: '-.01em',
+          }}
+        >
+          Bushy & Meme 2026
+        </motion.h1>
+
+        {/* Letter card */}
+        <motion.div {...enter(0.25, 0.6)} style={{ position: 'relative', width: '100%', marginTop: 28 }}>
+          <motion.div
+            animate={error ? { x: [0, -7, 6, -4, 3, 0] } : { x: 0 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            style={{
+              position: 'relative', backgroundColor: LETTER,
+              backgroundImage: 'repeating-linear-gradient(to bottom,transparent 0 33px,rgba(120,100,150,.08) 33px 34px)',
+              borderRadius: 8, padding: '26px 24px 30px', boxShadow: CARD_SHADOW, rotate: -1,
+            }}
           >
-            <div className="space-y-2">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ 
-                  scale: [1, 1.06, 1],
-                  opacity: 1
-                }}
-                whileTap={{ 
-                  scale: [1, 0.9, 1.08],
-                  filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"]
-                }}
-                transition={{ 
-                  scale: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-                  opacity: { duration: 0.4, delay: 0.2 }
-                }}
-              >
-                <Heart className="w-12 h-12 mx-auto text-rose-300 mb-4 fill-rose-100" />
-              </motion.div>
-              <motion.h1 
-                className="text-3xl font-bold tracking-tight text-slate-700"
-                initial={{ opacity: 0, y: 8, letterSpacing: "0.1em" }}
-                animate={{ opacity: 1, y: 0, letterSpacing: "-0.025em" }}
-                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-              >
-                Bushy & Meme 2026
-              </motion.h1>
-              <motion.p 
-                className="text-slate-500 font-medium"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.8 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                What movie did we first watch together?
-              </motion.p>
-            </div>
-
-            <motion.div 
-              animate={error ? { x: [-4, 4, -4, 4, 0] } : {}}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="space-y-4"
-            >
-              <motion.div 
-                className="relative"
-                whileFocus={{ scale: 1.01 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Input 
-                  type="text" 
-                  placeholder="Type answer..." 
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="text-center h-14 text-lg rounded-2xl border-purple-100 focus:border-purple-300 focus:ring-2 focus:ring-purple-200/50 bg-white/60 backdrop-blur-sm shadow-sm transition-all placeholder:text-slate-400 text-slate-700"
-                  style={{
-                    boxShadow: error ? '0 0 0 2px rgba(251, 207, 232, 0.3)' : undefined
-                  }}
-                />
-              </motion.div>
-
+            <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '.1em', color: MICRO }}>QUESTION No. 01</div>
+            <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 25, lineHeight: 1.3, marginTop: 10, textWrap: 'pretty' }}>
+              What movie did we first watch together?
+            </p>
+            <input
+              type="text"
+              placeholder="Type answer..."
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              enterKeyHint="go"
+              className="placeholder:text-[#b9aecb]"
+              style={{
+                width: '100%', marginTop: 22, border: 'none',
+                borderBottom: `1.5px dashed ${error ? WAX_ROSE : DASHED}`, borderRadius: 0,
+                background: 'transparent', outline: 'none', fontFamily: SERIF, fontSize: 28,
+                textAlign: 'center', color: INK, padding: '4px 0 8px', boxSizing: 'border-box',
+                transition: 'border-color .2s',
+              }}
+            />
+            <AnimatePresence>
               {error && (
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm font-medium"
-                  style={{ color: 'rgb(251, 207, 232)' }}
+                <motion.p
+                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{ textAlign: 'center', marginTop: 12, fontSize: 14, fontWeight: 600, color: WAX_ROSE }}
                 >
                   Not quite—try again 💙
                 </motion.p>
               )}
-            </motion.div>
+            </AnimatePresence>
 
-            <div className="space-y-4 pt-2">
-              <motion.div 
-                whileHover={{ 
-                  y: -2,
-                  boxShadow: "0 20px 25px -5px rgb(221, 214, 254, 0.4), 0 10px 10px -5px rgb(221, 214, 254, 0.2)"
-                }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            {/* Unlock stamp */}
+            {isUnlocking && (
+              <div style={{
+                position: 'absolute', left: '50%', top: '50%', width: 132, height: 132, borderRadius: '50%',
+                background: WAX_ROSE,
+                boxShadow: 'inset 0 0 0 9px rgba(255,255,255,.18), 0 18px 30px -10px rgba(150,50,70,.6)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                animation: 'l26stamp .55s cubic-bezier(.3,.7,.3,1) both', pointerEvents: 'none',
+              }}>
+                <Heart size={38} color="#fff" fill="#fff" strokeWidth={0} />
+                <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', marginTop: 6 }}>UNLOCKED</div>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+
+        {/* Unlock button */}
+        <motion.button
+          {...enter(0.4, 0.6)}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => { playTapSound(); handleUnlock(); }}
+          style={{
+            position: 'relative', width: '100%', height: 56, marginTop: 26, borderRadius: 99, border: 'none',
+            background: INK, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: SANS, fontWeight: 600, fontSize: 17, cursor: 'pointer', overflow: 'hidden',
+            boxShadow: '0 14px 26px -14px rgba(59,52,80,.7)', WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          <span style={{
+            position: 'absolute', top: 0, bottom: 0, left: 0, width: '40%',
+            background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)',
+            animation: 'l26sheen 3.2s ease-in-out infinite',
+          }} />
+          <span style={{ position: 'relative' }}>Unlock</span>
+        </motion.button>
+
+        {/* Hints */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+          marginTop: 18, minHeight: 44,
+        }}>
+          {!showHint ? (
+            <button
+              onClick={() => { playTapSound(); setShowHint(true); }}
+              style={{
+                fontFamily: SANS, fontSize: 13, color: MUTED_2, background: 'none', border: 'none',
+                padding: '8px 16px', minHeight: 44, cursor: 'pointer',
+              }}
+            >
+              Show hint
+            </button>
+          ) : (
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.35, ease: EASE_ARRAY }}
+                style={{ position: 'relative', fontFamily: SERIF, fontStyle: 'italic', fontSize: 22, color: HINT_BLUE }}
               >
-                <motion.div
-                  className="w-full h-14 rounded-full bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 shadow-lg shadow-purple-100 overflow-hidden relative cursor-pointer"
-                  animate={{
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                  style={{
-                    backgroundSize: "200% 100%"
-                  }}
-                  onClick={() => { playTapSound(); handleUnlock(); }}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white font-semibold text-lg relative z-10">
-                      Unlock
-                    </span>
-                  </div>
-                  <motion.div
-                    className="absolute inset-0 bg-white/20 rounded-full"
-                    initial={{ scale: 0, opacity: 0 }}
-                    whileTap={{ scale: 2, opacity: [0.3, 0] }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </motion.div>
+                think blue
+                <span style={{
+                  position: 'absolute', left: 0, bottom: 2, height: 1.5, background: HINT_BLUE,
+                  animation: 'l26draw .6s .2s both',
+                }} />
               </motion.div>
 
-              <div className="flex flex-col items-center gap-3">
-                <div className="h-8 flex items-center justify-center">
-                  {!showHint ? (
-                    <motion.div whileTap={{ scale: 0.9 }}>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => { playTapSound(); setShowHint(true); }}
-                        className="text-slate-400 hover:text-blue-500 hover:bg-transparent transition-colors text-xs"
-                      >
-                        Show hint
-                      </Button>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.9 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ type: "spring", damping: 15, duration: 0.25 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full relative">
-                        <HelpCircle className="w-3 h-3 text-blue-500" />
-                        <motion.span 
-                          className="text-sm font-medium text-blue-500 relative"
-                          animate={{
-                            textShadow: [
-                              "0 0 8px rgba(59, 130, 246, 0.3)",
-                              "0 0 12px rgba(59, 130, 246, 0.5)",
-                              "0 0 8px rgba(59, 130, 246, 0.3)"
-                            ]
-                          }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                          think blue
-                          <motion.span
-                            className="absolute bottom-0 left-0 h-[1px] bg-blue-400"
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                          />
-                        </motion.span>
-                      </div>
+              {!showSuperHint && (
+                <motion.button
+                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.3, ease: EASE_ARRAY }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { playTapSound(); setShowSuperHint(true); }}
+                  style={{ background: 'none', border: 'none', padding: '6px 0', cursor: 'pointer', fontFamily: SANS }}
+                >
+                  <span style={{
+                    display: 'block', fontSize: 12, fontWeight: 600, color: MUTED_3,
+                    padding: '7px 14px', borderRadius: 99, border: `1px dashed ${DASHED}`,
+                  }}>
+                    Super hint 🤫
+                  </span>
+                </motion.button>
+              )}
 
-                      {!showSuperHint && (
-                        <motion.button
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3, duration: 0.2 }}
-                          whileTap={{ scale: 0.97 }}
-                          whileHover={{ 
-                            scale: 1.05,
-                            boxShadow: "0 4px 12px rgba(148, 163, 184, 0.2)"
-                          }}
-                          onClick={() => { playTapSound(); setShowSuperHint(true); }}
-                          className="text-xs text-slate-500 hover:text-blue-500 transition-all font-medium flex items-center gap-1 bg-white/60 px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm"
-                        >
-                          Super hint 🤫
-                        </motion.button>
-                      )}
-                    </motion.div>
-                  )}
-                </div>
-
-                <AnimatePresence>
-                  {showSuperHint && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="bg-gradient-to-br from-blue-100 to-cyan-50 px-4 py-3 rounded-2xl shadow-lg border border-blue-200/50 relative overflow-hidden"
-                      style={{
-                        boxShadow: "0 4px 20px rgba(59, 130, 246, 0.15)"
-                      }}
-                    >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200/20 rounded-full blur-2xl" />
-                      <div className="relative z-10 flex items-start gap-2">
-                        <motion.span
-                          animate={{ 
-                            rotate: [0, 14, -8, 14, 0]
-                          }}
-                          transition={{ duration: 1.5, delay: 0.2 }}
-                          className="text-lg"
-                        >
-                          👋
-                        </motion.span>
-                        <div>
-                          <p className="text-sm font-medium text-blue-700 leading-relaxed">
-                            It's a movie with tall blue aliens...
-                          </p>
-                          <p className="text-xs text-blue-500/70 mt-1">
-                            You know this one! 💙
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center z-50"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ 
-              opacity: 1,
-              scale: 1.05,
-              background: [
-                "linear-gradient(135deg, rgb(255, 255, 255) 0%, rgb(254, 242, 242) 100%)",
-                "linear-gradient(135deg, rgb(254, 242, 242) 0%, rgb(255, 255, 255) 100%)"
-              ]
-            }}
-            transition={{ 
-              opacity: { duration: 0.4 },
-              scale: { duration: 1.2, ease: "easeOut" },
-              background: { duration: 1.2 }
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ 
-                scale: [1, 1.2, 15], 
-                opacity: [1, 1, 0] 
-              }}
-              transition={{ 
-                duration: 1.2, 
-                times: [0, 0.4, 1],
-                ease: [0.2, 0.8, 0.2, 1]
-              }}
-              className="relative"
-            >
-              <motion.div 
-                className="absolute inset-0 bg-rose-400 rounded-full blur-3xl opacity-50"
-                animate={{
-                  scale: [1, 1.5, 2],
-                  opacity: [0.5, 0.3, 0]
-                }}
-                transition={{ duration: 1.2 }}
-              />
-              <Heart className="w-32 h-32 text-rose-500 fill-rose-500 relative z-10" />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+              {showSuperHint && (
+                <motion.div
+                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.35, ease: EASE_ARRAY }}
+                  style={{
+                    background: LETTER, borderRadius: 6, padding: '14px 18px', rotate: 1.5,
+                    boxShadow: '0 12px 24px -16px rgba(70,50,90,.5)',
+                    display: 'flex', gap: 10, alignItems: 'flex-start',
+                  }}
+                >
+                  <motion.span
+                    animate={{ rotate: [0, 14, -8, 14, 0] }}
+                    transition={{ duration: 1.5, delay: 0.2 }}
+                    style={{ fontSize: 18, display: 'inline-block' }}
+                  >
+                    👋
+                  </motion.span>
+                  <div>
+                    <p style={{ fontFamily: SERIF, fontSize: 19, lineHeight: 1.3 }}>It's a movie with tall blue aliens...</p>
+                    <p style={{ fontSize: 12, color: MUTED_2, marginTop: 3 }}>You know this one! 💙</p>
+                  </div>
+                </motion.div>
+              )}
+            </>
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
 }
