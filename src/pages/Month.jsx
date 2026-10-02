@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import { getMemoryYear, isMonthLocked, yearQuery } from '@/components/memoryYears';
 import MemoryCarousel from '@/components/MemoryCarousel';
 import { preloadMonthImages } from '@/components/ImagePreloader';
+import Month2026 from '@/components/memories2026/Month2026';
 
 export default function Month() {
   const navigate = useNavigate();
@@ -68,6 +69,8 @@ export default function Month() {
   const monthData = months.find(m => m.monthIndex === monthIndex);
   
   if (!monthData || locked) return null;
+
+  if (year === 2026) return <Month2026 yearData={yearData} monthIndex={monthIndex} />;
 
   return (
     <div className="min-h-screen bg-blue-50 pb-32 font-sans">

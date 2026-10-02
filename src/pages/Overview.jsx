@@ -7,6 +7,7 @@ import { preloadRange } from '@/components/ImagePreloader';
 import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
 import { toast } from 'sonner';
 import { MONTH_NAMES as months, getMemoryYear, isMonthLocked, yearQuery } from '@/components/memoryYears';
+import Overview2026 from '@/components/memories2026/Overview2026';
 
 const pillToast = (message) => toast(message, {
   position: 'bottom-center',
@@ -51,6 +52,8 @@ export default function Overview() {
 
     return () => clearTimeout(timer);
   }, [navigate, year, yearData.secret]);
+
+  if (year === 2026) return <Overview2026 yearData={yearData} />;
 
   const container = {
     hidden: { opacity: 0 },
