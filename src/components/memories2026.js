@@ -43,7 +43,12 @@ export const memories2026 = {
       photos: ["/photos2026/jan11.jpg", "/photos2026/jan12.jpg"]
     }
   ],
-  1: [], // February
+  1: [ // February
+    {
+      text: `Happy valentines na kubb babeeeee. Our 3rd one and to so many moreeeeee! i ruk you t sood nai loke loeyyy i love you very much and thank you for always being by my sideeeeee hopefully u enjoyed this meal ahhahahha chaiy dai loey naaaa`,
+      photos: ["/photos2026/feb1.jpg", "/photos2026/feb2.jpg", "/photos2026/feb3.jpg", "/photos2026/feb4.jpg"]
+    }
+  ],
   2: [], // March
   3: [], // April
   4: [], // May
