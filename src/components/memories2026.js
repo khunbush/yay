@@ -51,6 +51,10 @@ export const memories2026 = {
     {
       text: `month nee mai koi dai tum arai loeyy tae rao gor dai pai concert nai rorb narn yuuuu and also pai tum this acrylic thing t i tum mai work loeyy :((((`,
       photos: ["/photos2026/feb5.jpg", "/photos2026/feb6.jpg", "/photos2026/feb7.jpg"]
+    },
+    {
+      text: `this month rao tum tae unneee. tung sanook tae very frustrating to see our hotel not improving hahhaaha. and last pic is cute pic of u hehehee`,
+      photos: ["/photos2026/feb8.jpg", "/photos2026/feb9.jpg", "/photos2026/feb10.jpg"]
     }
   ],
   2: [], // March
